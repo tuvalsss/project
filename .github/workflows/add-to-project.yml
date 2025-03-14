@@ -2,36 +2,17 @@ name: Add to Project
 
 on:
   pull_request_target:
-  issues:
     types:
       - opened
+      - synchronize
       - reopened
-
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  repository-projects: write
 
 jobs:
   add-to-project:
-    name: Add to project
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Add PR to ProjectV2
-        env:
-          PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}  # שימוש בטוקן החדש
-          PROJECT_ID: "PVT_kwHOC7nMFM4A0XFk"  # ה-ID של ProjectV2
-          PR_ID: ${{ github.event.pull_request.node_id }}
-        run: |
-          gh api graphql -f query='
-          mutation($projectId: ID!, $prId: ID!) {
-            addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId}) {
-              item {
-                id
-              }
-            }
-          }' -F projectId=$PROJECT_ID -F prId=$PR_ID -H "Authorization: Bearer $PAT_TOKEN"
+      - name: Add PR to Project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/orgs/tuvalsss/projects/2
+          github-token: ${{ secrets.PROJECTS_TOKEN }}
