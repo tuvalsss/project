@@ -20,6 +20,5 @@ jobs:
     steps:
       - uses: actions/add-to-project@v1.0.2
         with:
-          project-url: https://github.com/orgs/fastapi/projects/2
+          project-id: "PVT_kwHOC7nMFM4A0XFk"  # שימוש ב-ID הנכון של ProjectV2
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
