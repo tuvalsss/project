@@ -18,8 +18,16 @@ jobs:
     name: Add to project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@v1.0.2
-        with:
-  project-url: https://github.com/orgs/fastapi/projects/2  # ❌ זה לא תקין! צריך להחליף ל-project-id
-  github-token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Add PR to ProjectV2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_ID: "PVT_kwHOC7nMFM4A0XFk"  # ID של ProjectV2
+        run: |
+          gh api graphql -F projectId=$PROJECT_ID -F contentId=${{ github.event.pull_request.node_id }} -f query='
+          mutation($projectId: ID!, $contentId: ID!) {
+            addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+              item {
+                id
+              }
+            }
+          }'
