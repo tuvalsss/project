@@ -3,7 +3,7 @@ name: Cursor Auto PR
 on:
   push:
     branches:
-      - cursor-ai-branch  # הסניף שCursor מבצע עליו שינויים
+      - cursor-ai-branch  # הסניף שבו Cursor מבצע שינויים
 
 jobs:
   create_pr:
@@ -16,7 +16,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           branch: cursor-ai-branch
-          base: main  # או הסניף הראשי שלך
+          base: main  # או כל סניף ראשי אחר שלך
           title: "Cursor AI - Auto Generated Changes"
           body: "This PR was created automatically by Cursor AI"
           labels: "auto-pr, needs-review"
