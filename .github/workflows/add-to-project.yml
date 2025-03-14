@@ -32,7 +32,7 @@ jobs:
 
       - name: Add PR to ProjectV2 via GraphQL
         env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}  # שימוש ב-PAT TOKEN אם נדרש
+          PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}  # שימוש ב-PAT TOKEN אם נדרש
           PROJECT_ID: "PVT_kwHOC7nMFM4A0XFk"  # ID של ה-ProjectV2 שלך
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
