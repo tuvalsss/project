@@ -1,50 +1,22 @@
-name: Add to Project
+name: Add Pull Request to Project
 
 on:
   pull_request_target:
-  issues:
-    types:
-      - opened
-      - reopened
+    types: [opened, reopened]
 
 permissions:
   contents: write
   issues: write
   pull-requests: write
-  repository-projects: write
+  project: write  # ודא שההרשאה הזו קיימת
 
 jobs:
   add-to-project:
-    name: Add to project
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Authenticate GitHub API
+      - name: Add PR to Project
+        uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: "https://github.com/users/tuvalsss/projects/1"  # כתובת הפרויקט שלך
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          curl --request GET \
-          --url "https://api.github.com/user" \
-          --header "Authorization: Bearer $GH_TOKEN" \
-          --header "X-GitHub-Api-Version: 2022-11-28"
-
-      - name: Add PR to User ProjectV2 via GraphQL
-        env:
-          PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
-          PROJECT_ID: "PVT_kwHOC7nMFM4A0XFk"  # ID של ProjectV2 שלך
-          PROJECT_URL: "https://github.com/users/tuvalsss/projects/1"  # כתובת הפרויקט
-          PR_ID: ${{ github.event.pull_request.node_id }}
-        run: |
-          gh api graphql -f query='
-          mutation($projectId: ID!, $prId: ID!, $projectUrl: URI!) {
-            addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId, projectUrl: $projectUrl}) {
-              item {
-                id
-              }
-            }
-          }' -F projectId=$PROJECT_ID -F prId=$PR_ID -F projectUrl=$PROJECT_URL -H "Authorization: Bearer $PAT_TOKEN"
-
-      - name: Debug - Print Project Info
-        run: echo "Using Project ID: $PROJECT_ID, Project URL: $PROJECT_URL"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
