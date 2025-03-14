@@ -2,17 +2,36 @@ name: Add to Project
 
 on:
   pull_request_target:
+  issues:
     types:
       - opened
-      - synchronize
       - reopened
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  repository-projects: write
 
 jobs:
   add-to-project:
+    name: Add to project
     runs-on: ubuntu-latest
     steps:
-      - name: Add PR to Project
-        uses: actions/add-to-project@v0.5.0
-        with:
-        project-id: "PVT_kwHOC7nMFM4A0XFk"  # ✅ Project ID נכון של ProjectsV2
-        github-token: ${{ secrets.PROJECTS_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add PR to ProjectV2 via GraphQL
+        env:
+          PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+          PROJECT_ID: "PVT_kwHOC7nMFM4A0XFk"  # ה-ID של ProjectV2 שלך
+          PR_ID: ${{ github.event.pull_request.node_id }}
+        run: |
+          gh api graphql -f query='
+          mutation($projectId: ID!, $prId: ID!) {
+            addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId}) {
+              item {
+                id
+              }
+            }
+          }' -F projectId=$PROJECT_ID -F prId=$PR_ID -H "Authorization: Bearer $PAT_TOKEN"
