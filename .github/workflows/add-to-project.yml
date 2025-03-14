@@ -25,7 +25,6 @@ jobs:
       - name: Debug - Print Project Info
         run: |
           echo "🔍 Using Project ID: PVT_kwHOC7nMFM4A0XqS"
-          echo "🔍 Project URL: https://github.com/users/tuvalsss/projects/4"
 
       - name: Authenticate GitHub API
         env:
@@ -40,12 +39,12 @@ jobs:
       - name: Add PR to ProjectV2 via GraphQL
         timeout-minutes: 5
         env:
-          PAT_TOKEN1: ${{ secrets.PROJECTS_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
           PROJECT_ID: "PVT_kwHOC7nMFM4A0XqS"  # ✅ Project ID המעודכן
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
           echo "🚀 Sending request to GitHub API..."
-          gh api graphql --method POST -H "Authorization: Bearer $PAT_TOKEN1" -f query='
+          gh api graphql --method POST -H "Authorization: Bearer $PAT_TOKEN" -f query='
           mutation($projectId: ID!, $prId: ID!) {
             addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId}) {
               item {
