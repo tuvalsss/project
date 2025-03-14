@@ -1,0 +1,22 @@
+name: Cursor Auto PR
+
+on:
+  push:
+    branches:
+      - cursor-ai-branch  # הסניף שCursor מבצע עליו שינויים
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: cursor-ai-branch
+          base: main  # או הסניף הראשי שלך
+          title: "Cursor AI - Auto Generated Changes"
+          body: "This PR was created automatically by Cursor AI"
+          labels: "auto-pr, needs-review"
