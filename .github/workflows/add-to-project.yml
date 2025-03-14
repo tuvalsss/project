@@ -13,6 +13,10 @@ permissions:
   pull-requests: write
   repository-projects: write
 
+concurrency:
+  group: add-to-project
+  cancel-in-progress: true
+
 jobs:
   add-to-project:
     name: Add to project
@@ -22,21 +26,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
       - name: Authenticate GitHub API
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "🔍 Checking GitHub Authentication..."
           curl --request GET \
           --url "https://api.github.com/user" \
           --header "Authorization: Bearer $GH_TOKEN" \
           --header "X-GitHub-Api-Version: 2022-11-28"
 
+      - name: Debug - Print Project Info
+        run: |
+          echo "🔍 Using Project ID: $PROJECT_ID"
+          echo "🔍 Project URL: https://github.com/users/tuvalsss/projects/4"
+
       - name: Add PR to ProjectV2 via GraphQL
+        timeout-minutes: 5
         env:
           PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
           PROJECT_ID: "PVT_kwHOC7nMFM4A0XqS"  # ✅ Project ID המעודכן
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
+          echo "🚀 Sending request to GitHub API..."
           gh api graphql --method POST -H "Authorization: Bearer $PAT_TOKEN" -f query='
           mutation($projectId: ID!, $prId: ID!) {
             addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId}) {
@@ -45,6 +65,3 @@ jobs:
               }
             }
           }' -F projectId=$PROJECT_ID -F prId=$PR_ID
-
-      - name: Debug - Print Project Info
-        run: echo "Using Project ID: $PROJECT_ID"
