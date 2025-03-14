@@ -1,54 +1,24 @@
 name: Add to Project
 
 on:
-  pull_request_target:
   issues:
     types:
       - opened
       - reopened
-
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  repository-projects: write
+      - labeled
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - labeled
 
 jobs:
   add-to-project:
-    name: Add to project
+    name: Add issue or PR to project
     runs-on: ubuntu-latest
     steps:
-      
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Debug - Print Project Info
-        run: |
-          echo "🔍 Using Project ID: PVT_kwHOC7nMFM4A0XqS"
-
-      - name: Authenticate GitHub API
-        env:
-          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
-        run: |
-          echo "🔍 Checking GitHub Authentication..."
-          curl --request GET \
-          --url "https://api.github.com/user" \
-          --header "Authorization: Bearer $GH_TOKEN" \
-          --header "X-GitHub-Api-Version: 2022-11-28"
-
-      - name: Add PR to ProjectV2 via GraphQL
-        timeout-minutes: 5
-        env:
-          PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
-          PROJECT_ID: "PVT_kwHOC7nMFM4A0XqS"  # ✅ Project ID המעודכן
-          PR_ID: ${{ github.event.pull_request.node_id }}
-        run: |
-          echo "🚀 Sending request to GitHub API..."
-          gh api graphql --method POST -H "Authorization: Bearer $PAT_TOKEN" -f query='
-          mutation($projectId: ID!, $prId: ID!) {
-            addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId}) {
-              item {
-                id
-              }
-            }
-          }' -F projectId=$PROJECT_ID -F prId=$PR_ID
+      - name: Add to project
+        uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: 'https://github.com/orgs/tuvalsss/projects/4'
+          github-token: ${{ secrets.PROJECTS_TOKEN }}
