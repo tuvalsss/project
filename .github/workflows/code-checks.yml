@@ -1,0 +1,67 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches:
+      - cursor-ai-branch
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies (JavaScript)
+        run: |
+          if [ -f package.json ]; then
+            npm install
+          fi
+
+      - name: Run ESLint (JavaScript)
+        run: |
+          if [ -f package.json ]; then
+            npx eslint . || exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies (Python)
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: Run PyLint (Python)
+        run: |
+          if [ -f requirements.txt ]; then
+            pylint $(git ls-files '*.py') || exit 1
+          fi
+
+      - name: Run Unit Tests (if available)
+        run: |
+          if [ -f package.json ]; then
+            npm test || exit 1
+          fi
+          if [ -f requirements.txt ]; then
+            pytest || exit 1
+          fi
