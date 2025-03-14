@@ -1,4 +1,5 @@
-import type { ApiError } from "./client"
+import type { ApiError } from "./client/core/ApiError"
+import type { HTTPValidationError } from "./client/types.gen"
 import useCustomToast from "./hooks/useCustomToast"
 
 export const emailPattern = {
@@ -42,6 +43,17 @@ export const confirmPasswordRules = (
   }
 
   return rules
+}
+
+export const getErrorMessage = (err: ApiError): string => {
+  if (!err.body) return "Something went wrong."
+  
+  const body = err.body as HTTPValidationError
+  if (body.detail && Array.isArray(body.detail) && body.detail.length > 0) {
+    return body.detail[0].msg
+  }
+  
+  return "Something went wrong."
 }
 
 export const handleError = (err: ApiError) => {

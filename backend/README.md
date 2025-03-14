@@ -4,7 +4,7 @@
 
 * [Docker](https://www.docker.com/).
 * [uv](https://docs.astral.sh/uv/) for Python package and environment management.
-
+שדככע
 ## Docker Compose
 
 Start the local development environment with Docker Compose following the guide in [../development.md](../development.md).
@@ -141,7 +141,7 @@ $ docker compose exec backend bash
 $ alembic revision --autogenerate -m "Add column last_name to User model"
 ```
 
-* Commit to the git repository the files generated in the alembic directory.
+* Commit to safdasfasfsafthe git repository the files generated in the alembic directory.
 
 * After creating the revision, run the migration in the database (this is what will actually change the database):
 

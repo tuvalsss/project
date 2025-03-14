@@ -8,12 +8,12 @@ import { RouterProvider, createRouter } from "@tanstack/react-router"
 import React, { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 import { routeTree } from "./routeTree.gen"
-import { ChakraProvider } from '@chakra-ui/react'
 
-import { ApiError, OpenAPI } from "./client"
+import { ApiError } from "./client/core/ApiError"
+import { OpenAPI } from "./client"
 import { CustomProvider } from "./components/ui/provider"
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL
+OpenAPI.BASE = import.meta.env.VITE_API_URL.replace('/api/v1', '')
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }
@@ -43,11 +43,9 @@ declare module "@tanstack/react-router" {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ChakraProvider>
-        <CustomProvider>
-          <RouterProvider router={router} />
-        </CustomProvider>
-      </ChakraProvider>
+      <CustomProvider>
+        <RouterProvider router={router} />
+      </CustomProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

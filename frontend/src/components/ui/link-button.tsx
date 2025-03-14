@@ -1,12 +1,28 @@
 "use client"
 
-import type { HTMLChakraProps, RecipeProps } from "@chakra-ui/react"
-import { createRecipeContext } from "@chakra-ui/react"
+import { Button } from "@chakra-ui/react"
+import { forwardRef } from "react"
 
-export interface LinkButtonProps
-  extends HTMLChakraProps<"a", RecipeProps<"button">> {}
+export interface LinkButtonProps {
+  href: string
+  children?: React.ReactNode
+  [key: string]: any
+}
 
-const { withContext } = createRecipeContext({ key: "button" })
+export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
+  (props: LinkButtonProps, ref: React.ForwardedRef<HTMLAnchorElement>) => {
+    const { href, children, ...rest } = props
+    return (
+      <Button
+        as="a"
+        href={href}
+        ref={ref}
+        {...rest}
+      >
+        {children}
+      </Button>
+    )
+  }
+)
 
-// Replace "a" with your framework's link component
-export const LinkButton = withContext<HTMLAnchorElement, LinkButtonProps>("a")
+LinkButton.displayName = "LinkButton"

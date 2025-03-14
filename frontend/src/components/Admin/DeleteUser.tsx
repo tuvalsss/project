@@ -1,4 +1,4 @@
-import { Button, DialogTitle, Text } from "@chakra-ui/react"
+import { Button, Text } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTrigger,
+  DialogTitle,
 } from "@/components/ui/dialog"
 import useCustomToast from "@/hooks/useCustomToast"
 
@@ -54,7 +55,7 @@ const DeleteUser = ({ id }: { id: string }) => {
       placement="center"
       role="alertdialog"
       open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
+      onOpenChange={({ open }: { open: boolean }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" colorPalette="red">

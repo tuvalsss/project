@@ -1,6 +1,8 @@
-import { defineRecipe } from "@chakra-ui/react"
+import { createStylesContext } from "@chakra-ui/react"
 
-export const buttonRecipe = defineRecipe({
+export const [ButtonStylesProvider, useButtonStyles] = createStylesContext("Button")
+
+export const buttonRecipe = {
   base: {
     fontWeight: "bold",
     display: "flex",
@@ -18,4 +20,4 @@ export const buttonRecipe = defineRecipe({
       },
     },
   },
-})
+}

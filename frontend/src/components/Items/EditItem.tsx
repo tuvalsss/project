@@ -1,7 +1,7 @@
 import {
   Button,
   ButtonGroup,
-  DialogActionTrigger,
+  ModalCloseButton,
   Input,
   Text,
   VStack,
@@ -33,6 +33,10 @@ interface EditItemProps {
 interface ItemUpdateForm {
   title: string
   description?: string
+}
+
+interface OpenChangeEvent {
+  open: boolean
 }
 
 const EditItem = ({ item }: EditItemProps) => {
@@ -78,11 +82,11 @@ const EditItem = ({ item }: EditItemProps) => {
       size={{ base: "xs", md: "md" }}
       placement="center"
       open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
+      onOpenChange={({ open }: OpenChangeEvent) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
         <Button variant="ghost">
-          <FaExchangeAlt fontSize="16px" />
+          <FaExchangeAlt size="16px" />
           Edit Item
         </Button>
       </DialogTrigger>
@@ -127,7 +131,7 @@ const EditItem = ({ item }: EditItemProps) => {
 
           <DialogFooter gap={2}>
             <ButtonGroup>
-              <DialogActionTrigger asChild>
+              <ModalCloseButton asChild>
                 <Button
                   variant="subtle"
                   colorPalette="gray"
@@ -135,7 +139,7 @@ const EditItem = ({ item }: EditItemProps) => {
                 >
                   Cancel
                 </Button>
-              </DialogActionTrigger>
+              </ModalCloseButton>
               <Button variant="solid" type="submit" loading={isSubmitting}>
                 Save
               </Button>

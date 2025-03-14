@@ -18,8 +18,19 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         return db.exec(select(User).where(User.firebase_uid == firebase_uid)).first()
 
+    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
+        """
+        אימות משתמש לפי אימייל וסיסמה
+        """
+        user = self.get_by_email(db, email=email)
+        if not user:
+            return None
+        if not verify_password(password, user.hashed_password):
+            return None
+        return user
+
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
-        create_data = obj_in.model_dump(exclude_unset=True)
+        create_data = obj_in.dict(exclude_unset=True)
         if "password" in create_data:
             create_data["hashed_password"] = get_password_hash(create_data["password"])
             del create_data["password"]
@@ -43,20 +54,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
-            update_data = obj_in.model_dump(exclude_unset=True)
+            update_data = obj_in.dict(exclude_unset=True)
         if "password" in update_data:
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
-        return super().update(db, db_obj=db_obj, obj_in=update_data)
-
-    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
-        user = self.get_by_email(db, email=email)
-        if not user:
-            return None
-        if not verify_password(password, user.hashed_password or ""):
-            return None
-        return user
+        for field, value in update_data.items():
+            if hasattr(db_obj, field):
+                setattr(db_obj, field, value)
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
 
     def is_active(self, user: User) -> bool:
         return user.is_active

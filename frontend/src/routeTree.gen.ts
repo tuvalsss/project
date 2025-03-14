@@ -17,8 +17,14 @@ import { Route as RecoverPasswordImport } from './routes/recover-password'
 import { Route as LoginImport } from './routes/login'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
+import { Route as LayoutSocialImport } from './routes/_layout/social'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
+import { Route as LayoutReportsImport } from './routes/_layout/reports'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
+import { Route as LayoutCampaignsImport } from './routes/_layout/campaigns'
+import { Route as LayoutAiAnalysisImport } from './routes/_layout/ai-analysis'
+import { Route as LayoutAffiliatesImport } from './routes/_layout/affiliates'
+import { Route as LayoutAffiliateImport } from './routes/_layout/affiliate'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
 
 // Create/Update Routes
@@ -53,13 +59,43 @@ const LayoutIndexRoute = LayoutIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutSocialRoute = LayoutSocialImport.update({
+  path: '/social',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutSettingsRoute = LayoutSettingsImport.update({
   path: '/settings',
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutReportsRoute = LayoutReportsImport.update({
+  path: '/reports',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutItemsRoute = LayoutItemsImport.update({
   path: '/items',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutCampaignsRoute = LayoutCampaignsImport.update({
+  path: '/campaigns',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutAiAnalysisRoute = LayoutAiAnalysisImport.update({
+  path: '/ai-analysis',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutAffiliatesRoute = LayoutAffiliatesImport.update({
+  path: '/affiliates',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutAffiliateRoute = LayoutAffiliateImport.update({
+  path: '/affiliate',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -96,12 +132,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/affiliate': {
+      preLoaderRoute: typeof LayoutAffiliateImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/affiliates': {
+      preLoaderRoute: typeof LayoutAffiliatesImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/ai-analysis': {
+      preLoaderRoute: typeof LayoutAiAnalysisImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/campaigns': {
+      preLoaderRoute: typeof LayoutCampaignsImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/items': {
       preLoaderRoute: typeof LayoutItemsImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/reports': {
+      preLoaderRoute: typeof LayoutReportsImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/settings': {
       preLoaderRoute: typeof LayoutSettingsImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/social': {
+      preLoaderRoute: typeof LayoutSocialImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/': {
@@ -116,8 +176,14 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAdminRoute,
+    LayoutAffiliateRoute,
+    LayoutAffiliatesRoute,
+    LayoutAiAnalysisRoute,
+    LayoutCampaignsRoute,
     LayoutItemsRoute,
+    LayoutReportsRoute,
     LayoutSettingsRoute,
+    LayoutSocialRoute,
     LayoutIndexRoute,
   ]),
   LoginRoute,

@@ -1,17 +1,19 @@
 import {
   Container,
-  EmptyState,
   Flex,
   Heading,
   Table,
   VStack,
+  Box,
+  Icon,
+  Text,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { FiSearch } from "react-icons/fi"
 import { z } from "zod"
 
-import { ItemsService } from "@/client"
+import { ItemsService, ItemPublic } from "@/client"
 import { ItemActionsMenu } from "@/components/Common/ItemActionsMenu"
 import AddItem from "@/components/Items/AddItem"
 import PendingItems from "@/components/Pending/PendingItems"
@@ -47,12 +49,12 @@ function ItemsTable() {
 
   const { data, isLoading, isPlaceholderData } = useQuery({
     ...getItemsQueryOptions({ page }),
-    placeholderData: (prevData) => prevData,
+    placeholderData: (prevData: { data: ItemPublic[]; count: number } | undefined) => prevData,
   })
 
   const setPage = (page: number) =>
     navigate({
-      search: (prev: { [key: string]: string }) => ({ ...prev, page }),
+      search: () => ({ page }),
     })
 
   const items = data?.data.slice(0, PER_PAGE) ?? []
@@ -64,19 +66,17 @@ function ItemsTable() {
 
   if (items.length === 0) {
     return (
-      <EmptyState.Root>
-        <EmptyState.Content>
-          <EmptyState.Indicator>
-            <FiSearch />
-          </EmptyState.Indicator>
-          <VStack textAlign="center">
-            <EmptyState.Title>You don't have any items yet</EmptyState.Title>
-            <EmptyState.Description>
-              Add a new item to get started
-            </EmptyState.Description>
-          </VStack>
-        </EmptyState.Content>
-      </EmptyState.Root>
+      <Box textAlign="center" py={10}>
+        <Icon as={FiSearch} boxSize={12} color="gray.400" mb={4} />
+        <VStack spacing={2}>
+          <Text fontSize="xl" fontWeight="bold">
+            You don't have any items yet
+          </Text>
+          <Text color="gray.500">
+            Add a new item to get started
+          </Text>
+        </VStack>
+      </Box>
     )
   }
 
@@ -92,7 +92,7 @@ function ItemsTable() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {items?.map((item) => (
+          {items?.map((item: ItemPublic) => (
             <Table.Row key={item.id} opacity={isPlaceholderData ? 0.5 : 1}>
               <Table.Cell truncate maxW="sm">
                 {item.id}
@@ -118,7 +118,8 @@ function ItemsTable() {
         <PaginationRoot
           count={count}
           pageSize={PER_PAGE}
-          onPageChange={({ page }) => setPage(page)}
+          page={page}
+          onPageChange={({ page }: { page: number }) => setPage(page)}
         >
           <Flex>
             <PaginationPrevTrigger />

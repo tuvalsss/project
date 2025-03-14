@@ -3,8 +3,6 @@ import { type SubmitHandler, useForm } from "react-hook-form"
 
 import {
   Button,
-  DialogActionTrigger,
-  DialogTitle,
   Input,
   Text,
   VStack,
@@ -12,20 +10,30 @@ import {
 import { useState } from "react"
 import { FaPlus } from "react-icons/fa"
 
-import { type ItemCreate, ItemsService } from "@/client"
-import type { ApiError } from "@/client/core/ApiError"
+import { type ApiError, type ItemPublic, ItemsService } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 import {
+  DialogActionTrigger,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogRoot,
+  DialogTitle,
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+
+interface ItemCreate {
+  title: string
+  description?: string
+}
+
+interface OpenChangeEvent {
+  open: boolean
+}
 
 const AddItem = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -70,11 +78,11 @@ const AddItem = () => {
       size={{ base: "xs", md: "md" }}
       placement="center"
       open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
+      onOpenChange={({ open }: OpenChangeEvent) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
         <Button value="add-item" my={4}>
-          <FaPlus fontSize="16px" />
+          <FaPlus size="16px" />
           Add Item
         </Button>
       </DialogTrigger>

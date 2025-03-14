@@ -5,10 +5,12 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router
 from app.core.config import settings
+from app.models import User, Campaign, CampaignAnalysis  # Import all models
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
-    return f"{route.tags[0]}-{route.name}"
+    tag = route.tags[0] if route.tags else "default"
+    return f"{tag}-{route.name}"
 
 
 if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
@@ -31,10 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# הוספת הנתיבים
-app.include_router(api_router, prefix="/api/v1")
-
 # נתיב בדיקת בריאות
-@app.get("/health")
+@app.get("/api/v1/health-check/", tags=["health"])
 def health_check():
     return {"status": "ok"}
+
+# הוספת הנתיבים
+app.include_router(api_router, prefix="/api/v1")

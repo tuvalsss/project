@@ -1,4 +1,4 @@
-import { Button, DialogTitle, Text } from "@chakra-ui/react"
+import { Button, Text } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -13,9 +13,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import useCustomToast from "@/hooks/useCustomToast"
+
+interface OpenChangeEvent {
+  open: boolean
+}
 
 const DeleteItem = ({ id }: { id: string }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -54,11 +59,11 @@ const DeleteItem = ({ id }: { id: string }) => {
       placement="center"
       role="alertdialog"
       open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
+      onOpenChange={({ open }: OpenChangeEvent) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" colorPalette="red">
-          <FiTrash2 fontSize="16px" />
+          <FiTrash2 size="16px" />
           Delete Item
         </Button>
       </DialogTrigger>

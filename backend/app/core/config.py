@@ -1,37 +1,33 @@
 import secrets
 import warnings
-from typing import Annotated, Any, Literal, List, Optional, Union
+from typing import Any, Literal, List, Optional, Union
 
 from pydantic import (
-    AnyUrl,
-    BeforeValidator,
+    AnyHttpUrl,
     EmailStr,
-    HttpUrl,
     PostgresDsn,
-    computed_field,
-    model_validator,
     field_validator,
+    BaseModel,
 )
-from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing_extensions import Self
 
 
-def parse_cors(v: Any) -> list[str] | str:
+def parse_cors(v: Any) -> Union[List[str], str]:
     if isinstance(v, str) and not v.startswith("["):
         return [i.strip() for i in v.split(",")]
-    elif isinstance(v, list | str):
+    elif isinstance(v, (list, str)):
         return v
     raise ValueError(v)
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        # Use top level .env file (one level above ./backend/)
-        env_file="../.env",
+        env_file=".env",
+        env_file_encoding="utf-8",
         env_ignore_empty=True,
-        extra="ignore",
+        extra="ignore"
     )
+
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 8 days = 8 days
@@ -42,6 +38,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[str] = []
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
@@ -50,18 +47,17 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     PROJECT_NAME: str
-    SENTRY_DSN: HttpUrl | None = None
+    SENTRY_DSN: Optional[AnyHttpUrl] = None
     POSTGRES_SERVER: str
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
 
-    @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
-        return MultiHostUrl.build(
-            scheme="postgresql+psycopg",
+        return PostgresDsn.build(
+            scheme="postgresql+psycopg2",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
             host=self.POSTGRES_SERVER,
@@ -78,10 +74,11 @@ class Settings(BaseSettings):
     EMAILS_FROM_EMAIL: Optional[EmailStr] = None
     EMAILS_FROM_NAME: Optional[str] = None
 
-    @field_validator("EMAILS_FROM_NAME")
-    def get_project_name(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("EMAILS_FROM_NAME", mode="before")
+    @classmethod
+    def get_project_name(cls, v: Optional[str], info: dict) -> str:
         if not v:
-            return values["PROJECT_NAME"]
+            return info.data.get("PROJECT_NAME", "")
         return v
 
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
@@ -89,11 +86,12 @@ class Settings(BaseSettings):
     EMAILS_ENABLED: bool = False
 
     @field_validator("EMAILS_ENABLED", mode="before")
-    def get_emails_enabled(cls, v: bool, values: dict) -> bool:
+    @classmethod
+    def get_emails_enabled(cls, v: bool, info: dict) -> bool:
         return bool(
-            values.get("SMTP_HOST")
-            and values.get("SMTP_PORT")
-            and values.get("EMAILS_FROM_EMAIL")
+            info.data.get("SMTP_HOST")
+            and info.data.get("SMTP_PORT")
+            and info.data.get("EMAILS_FROM_EMAIL")
         )
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
@@ -146,7 +144,7 @@ class Settings(BaseSettings):
     PLATFORM_OPTIONS: List[str] = ["facebook", "instagram", "google"]
     MIN_CAMPAIGN_BUDGET: float = 10.0
 
-    def _check_default_secret(self, var_name: str, value: str | None) -> None:
+    def _check_default_secret(self, var_name: str, value: Optional[str]) -> None:
         if value == "changethis":
             message = (
                 f'The value of {var_name} is "changethis", '
@@ -157,34 +155,16 @@ class Settings(BaseSettings):
             else:
                 raise ValueError(message)
 
-    @model_validator(mode="after")
-    def _enforce_non_default_secrets(self) -> Self:
-        self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
-        self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
-        self._check_default_secret(
-            "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
-        )
-
-        return self
-
-    def check_default_values(self) -> None:
-        """
-        בדיקת ערכים ברירת מחדל שצריכים להיות מוחלפים
-        """
-        default_values = {
-            "SECRET_KEY": "changethis",
-            "POSTGRES_PASSWORD": "changethis",
-            "FIRST_SUPERUSER_PASSWORD": "changethis",
-        }
-
-        for key, default_value in default_values.items():
-            if hasattr(self, key) and getattr(self, key) == default_value:
-                warnings.warn(
-                    f"The value of {key} is \"{default_value}\", for security, "
-                    "please change it, at least for deployments.",
-                    stacklevel=1,
-                )
+    @field_validator("SECRET_KEY", "POSTGRES_PASSWORD", "FIRST_SUPERUSER_PASSWORD", mode="before")
+    @classmethod
+    def check_secrets(cls, v: str, info: dict) -> str:
+        if v == "changethis":
+            message = (
+                f'The value of {info.field_name} is "changethis", '
+                "for security, please change it, at least for deployments."
+            )
+            warnings.warn(message, stacklevel=1)
+        return v
 
 
-settings = Settings()  # type: ignore
-settings.check_default_values()
+settings = Settings()

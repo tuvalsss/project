@@ -1,21 +1,27 @@
 "use client"
 
-import { toaster } from "@/components/ui/toaster"
+import { useToast as useChakraToast } from "@chakra-ui/react"
 
 const useCustomToast = () => {
+  const toast = useChakraToast()
+
   const showSuccessToast = (description: string) => {
-    toaster.create({
+    toast({
       title: "Success!",
       description,
-      type: "success",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
     })
   }
 
   const showErrorToast = (description: string) => {
-    toaster.create({
+    toast({
       title: "Something went wrong!",
       description,
-      type: "error",
+      status: "error",
+      duration: 5000,
+      isClosable: true,
     })
   }
 

@@ -1,14 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
-
-import { type UserCreate, UsersService } from "@/client"
-import type { ApiError } from "@/client/core/ApiError"
+import { type UserCreate, type UserPublic } from "@/client/types.gen"
+import { handleError } from "@/utils"
 import useCustomToast from "@/hooks/useCustomToast"
-import { emailPattern, handleError } from "@/utils"
 import {
   Button,
-  DialogActionTrigger,
-  DialogTitle,
   Flex,
   Input,
   Text,
@@ -25,8 +21,11 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTrigger,
+  DialogTitle,
+  DialogActionTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+import type { ApiError } from "@/client/core/ApiError"
 
 interface UserCreateForm extends UserCreate {
   confirm_password: string
@@ -57,8 +56,19 @@ const AddUser = () => {
   })
 
   const mutation = useMutation({
-    mutationFn: (data: UserCreate) =>
-      UsersService.createUser({ requestBody: data }),
+    mutationFn: async (data: UserCreate) => {
+      const response = await fetch('/api/v1/users/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ requestBody: data }),
+      })
+      if (!response.ok) {
+        throw await response.json()
+      }
+      return response.json() as Promise<UserPublic>
+    },
     onSuccess: () => {
       showSuccessToast("User created successfully.")
       reset()
@@ -73,70 +83,57 @@ const AddUser = () => {
   })
 
   const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    mutation.mutate(data)
+    const { confirm_password, ...userData } = data
+    mutation.mutate(userData)
   }
 
   return (
-    <DialogRoot
-      size={{ base: "xs", md: "md" }}
-      placement="center"
-      open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
-    >
+    <DialogRoot open={isOpen} onOpenChange={(open: boolean) => setIsOpen(open)}>
       <DialogTrigger asChild>
-        <Button value="add-user" my={4}>
-          <FaPlus fontSize="16px" />
+        <Button leftIcon={<FaPlus size="0.85em" />} size="sm">
           Add User
         </Button>
       </DialogTrigger>
       <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New User</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogHeader>
-            <DialogTitle>Add User</DialogTitle>
-          </DialogHeader>
           <DialogBody>
-            <Text mb={4}>
-              Fill in the form below to add a new user to the system.
-            </Text>
-            <VStack gap={4}>
+            <VStack spacing={4} align="stretch">
               <Field
-                required
-                invalid={!!errors.email}
-                errorText={errors.email?.message}
                 label="Email"
+                error={errors.email?.message}
+                required
               >
                 <Input
-                  id="email"
                   {...register("email", {
                     required: "Email is required",
-                    pattern: emailPattern,
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: "Invalid email address",
+                    },
                   })}
-                  placeholder="Email"
                   type="email"
+                  placeholder="Enter email"
                 />
               </Field>
-
               <Field
-                invalid={!!errors.full_name}
-                errorText={errors.full_name?.message}
                 label="Full Name"
+                error={errors.full_name?.message}
               >
                 <Input
-                  id="name"
                   {...register("full_name")}
-                  placeholder="Full name"
                   type="text"
+                  placeholder="Enter full name"
                 />
               </Field>
-
               <Field
+                label="Password"
+                error={errors.password?.message}
                 required
-                invalid={!!errors.password}
-                errorText={errors.password?.message}
-                label="Set Password"
               >
                 <Input
-                  id="password"
                   {...register("password", {
                     required: "Password is required",
                     minLength: {
@@ -144,84 +141,67 @@ const AddUser = () => {
                       message: "Password must be at least 8 characters",
                     },
                   })}
-                  placeholder="Password"
                   type="password"
+                  placeholder="Enter password"
                 />
               </Field>
-
               <Field
-                required
-                invalid={!!errors.confirm_password}
-                errorText={errors.confirm_password?.message}
                 label="Confirm Password"
+                error={errors.confirm_password?.message}
+                required
               >
                 <Input
-                  id="confirm_password"
                   {...register("confirm_password", {
-                    required: "Please confirm your password",
+                    required: "Please confirm password",
                     validate: (value) =>
-                      value === getValues().password ||
-                      "The passwords do not match",
+                      value === getValues("password") ||
+                      "Passwords do not match",
                   })}
-                  placeholder="Password"
                   type="password"
+                  placeholder="Confirm password"
                 />
               </Field>
-            </VStack>
-
-            <Flex mt={4} direction="column" gap={4}>
               <Controller
-                control={control}
                 name="is_superuser"
-                render={({ field }) => (
-                  <Field disabled={field.disabled} colorPalette="teal">
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
-                    >
-                      Is superuser?
-                    </Checkbox>
-                  </Field>
+                control={control}
+                render={({ field: { value, onChange } }) => (
+                  <Checkbox
+                    checked={value}
+                    onCheckedChange={(checked: boolean) => onChange(checked)}
+                    label="Is Superuser"
+                  />
                 )}
               />
               <Controller
-                control={control}
                 name="is_active"
-                render={({ field }) => (
-                  <Field disabled={field.disabled} colorPalette="teal">
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
-                    >
-                      Is active?
-                    </Checkbox>
-                  </Field>
+                control={control}
+                render={({ field: { value, onChange } }) => (
+                  <Checkbox
+                    checked={value}
+                    onCheckedChange={(checked: boolean) => onChange(checked)}
+                    label="Is Active"
+                  />
                 )}
               />
-            </Flex>
+            </VStack>
           </DialogBody>
-
-          <DialogFooter gap={2}>
-            <DialogActionTrigger asChild>
-              <Button
-                variant="subtle"
-                colorPalette="gray"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-            </DialogActionTrigger>
-            <Button
-              variant="solid"
-              type="submit"
-              disabled={!isValid}
-              loading={isSubmitting}
-            >
-              Save
-            </Button>
+          <DialogFooter>
+            <Flex gap={2} justify="flex-end">
+              <DialogCloseTrigger asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogCloseTrigger>
+              <DialogActionTrigger asChild>
+                <Button
+                  type="submit"
+                  isLoading={isSubmitting}
+                  isDisabled={!isValid}
+                >
+                  Create User
+                </Button>
+              </DialogActionTrigger>
+            </Flex>
           </DialogFooter>
         </form>
-        <DialogCloseTrigger />
       </DialogContent>
     </DialogRoot>
   )

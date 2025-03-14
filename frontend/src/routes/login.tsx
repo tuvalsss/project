@@ -75,7 +75,7 @@ function Login() {
           mb={4}
         />
         <Field
-          invalid={!!errors.username}
+          isInvalid={!!errors.username}
           errorText={errors.username?.message || !!error}
         >
           <InputGroup w="100%" startElement={<FiMail />}>

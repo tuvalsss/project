@@ -34,7 +34,7 @@ class CRUDAffiliate(CRUDBase[Affiliate, AffiliateCreate, AffiliateUpdate]):
         יצירת חשבון שותף חדש עם מזהה משתמש וקוד הפניה
         """
         db_obj = Affiliate(
-            **obj_in.model_dump(),
+            **obj_in.dict(exclude_unset=True),
             user_id=user_id,
             referral_code=referral_code
         )
@@ -71,7 +71,7 @@ class CRUDAffiliate(CRUDBase[Affiliate, AffiliateCreate, AffiliateUpdate]):
         יצירת קמפיין חדש עבור שותף
         """
         db_obj = Campaign(
-            **obj_in.model_dump(),
+            **obj_in.dict(exclude_unset=True),
             affiliate_id=affiliate_id
         )
         db.add(db_obj)

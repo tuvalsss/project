@@ -18,9 +18,9 @@ const UserMenu = () => {
       {/* Desktop */}
       <Flex>
         <MenuRoot>
-          <MenuTrigger asChild p={2}>
-            <Button data-testid="user-menu" variant="solid" maxW="sm" truncate>
-              <FaUserAstronaut fontSize="18" />
+          <MenuTrigger>
+            <Button data-testid="user-menu" variant="solid" maxW="sm">
+              <FaUserAstronaut size={18} />
               <Text>{user?.full_name || "User"}</Text>
             </Button>
           </MenuTrigger>
@@ -34,7 +34,7 @@ const UserMenu = () => {
                 py={2}
                 style={{ cursor: "pointer" }}
               >
-                <FiUser fontSize="18px" />
+                <FiUser size={18} />
                 <Box flex="1">My Profile</Box>
               </MenuItem>
             </Link>
@@ -46,7 +46,7 @@ const UserMenu = () => {
               onClick={handleLogout}
               style={{ cursor: "pointer" }}
             >
-              <FiLogOut />
+              <FiLogOut size={18} />
               Log Out
             </MenuItem>
           </MenuContent>

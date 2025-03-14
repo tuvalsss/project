@@ -16,9 +16,13 @@ import {
 } from "../ui/drawer"
 import SidebarItems from "./SidebarItems"
 
+interface DrawerOpenChangeEvent {
+  open: boolean
+}
+
 const Sidebar = () => {
   const queryClient = useQueryClient()
-  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
+  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"] as const)
   const { logout } = useAuth()
   const [open, setOpen] = useState(false)
 
@@ -28,7 +32,7 @@ const Sidebar = () => {
       <DrawerRoot
         placement="start"
         open={open}
-        onOpenChange={(e) => setOpen(e.open)}
+        onOpenChange={(e: DrawerOpenChangeEvent) => setOpen(e.open)}
       >
         <DrawerBackdrop />
         <DrawerTrigger asChild>
@@ -44,7 +48,7 @@ const Sidebar = () => {
             <FaBars />
           </IconButton>
         </DrawerTrigger>
-        <DrawerContent maxW="xs">
+        <DrawerContent>
           <DrawerCloseTrigger />
           <DrawerBody>
             <Flex flexDir="column" justify="space-between">

@@ -3,9 +3,6 @@ import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import {
   Button,
-  DialogActionTrigger,
-  DialogRoot,
-  DialogTrigger,
   Flex,
   Input,
   Text,
@@ -14,8 +11,9 @@ import {
 import { useState } from "react"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type UserPublic, type UserUpdate, UsersService } from "@/client"
+import { type UserPublic, UsersService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
+import type { UserUpdate } from "@/client/types.gen"
 import useCustomToast from "@/hooks/useCustomToast"
 import { emailPattern, handleError } from "@/utils"
 import { Checkbox } from "../ui/checkbox"
@@ -26,6 +24,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogRoot,
+  DialogTrigger,
+  DialogActionTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
@@ -33,7 +34,8 @@ interface EditUserProps {
   user: UserPublic
 }
 
-interface UserUpdateForm extends UserUpdate {
+interface UserUpdateForm extends Omit<UserUpdate, "password"> {
+  password: string
   confirm_password?: string
 }
 
@@ -51,7 +53,14 @@ const EditUser = ({ user }: EditUserProps) => {
   } = useForm<UserUpdateForm>({
     mode: "onBlur",
     criteriaMode: "all",
-    defaultValues: user,
+    defaultValues: {
+      email: user.email,
+      full_name: user.full_name,
+      is_active: user.is_active,
+      is_superuser: user.is_superuser,
+      password: "",
+      confirm_password: "",
+    },
   })
 
   const mutation = useMutation({
@@ -71,10 +80,14 @@ const EditUser = ({ user }: EditUserProps) => {
   })
 
   const onSubmit: SubmitHandler<UserUpdateForm> = async (data) => {
-    if (data.password === "") {
-      data.password = undefined
+    const updateData: UserUpdate = {
+      email: data.email,
+      full_name: data.full_name,
+      is_active: data.is_active,
+      is_superuser: data.is_superuser,
+      password: data.password === "" ? undefined : data.password,
     }
-    mutation.mutate(data)
+    mutation.mutate(updateData)
   }
 
   return (
@@ -82,11 +95,11 @@ const EditUser = ({ user }: EditUserProps) => {
       size={{ base: "xs", md: "md" }}
       placement="center"
       open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
+      onOpenChange={({ open }: { open: boolean }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
-          <FaExchangeAlt fontSize="16px" />
+          <FaExchangeAlt size={16} />
           Edit User
         </Button>
       </DialogTrigger>
@@ -172,7 +185,7 @@ const EditUser = ({ user }: EditUserProps) => {
                   <Field disabled={field.disabled} colorPalette="teal">
                     <Checkbox
                       checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
+                      onCheckedChange={({ checked }: { checked: boolean }) => field.onChange(checked)}
                     >
                       Is superuser?
                     </Checkbox>
@@ -186,7 +199,7 @@ const EditUser = ({ user }: EditUserProps) => {
                   <Field disabled={field.disabled} colorPalette="teal">
                     <Checkbox
                       checked={field.value}
-                      onCheckedChange={({ checked }) => field.onChange(checked)}
+                      onCheckedChange={({ checked }: { checked: boolean }) => field.onChange(checked)}
                     >
                       Is active?
                     </Checkbox>

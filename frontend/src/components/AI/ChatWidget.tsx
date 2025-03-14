@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Box,
   Button,
@@ -12,12 +12,14 @@ import {
   Input,
   Text,
   useDisclosure,
-  useToast,
   VStack,
+  useToast,
 } from '@chakra-ui/react'
 import { useMutation } from '@tanstack/react-query'
 import { AiService } from '@/client'
+import { getErrorMessage } from '@/utils'
 import { FaRobot } from 'react-icons/fa'
+import { ApiError } from '@/client/core/ApiError'
 
 interface Message {
   id: string
@@ -26,48 +28,63 @@ interface Message {
   timestamp: Date
 }
 
-export const ChatWidget: React.FC = () => {
+interface ChatResponse {
+  response: string
+}
+
+export function ChatWidget() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
+  const [messages, setMessages] = React.useState<Message[]>([])
+  const [input, setInput] = React.useState('')
   const toast = useToast()
 
-  const chatMutation = useMutation({
-    mutationFn: (message: string) => AiService.chat(message),
-    onSuccess: (response) => {
+  const mutation = useMutation<ChatResponse, ApiError, string>({
+    mutationFn: async (message: string) => {
+      const response = await AiService.chat(message)
+      return response as ChatResponse
+    },
+    onSuccess: (response: ChatResponse) => {
       setMessages((prev) => [
         ...prev,
         {
-          id: Date.now().toString(),
-          text: response.message,
+          id: Math.random().toString(),
+          text: response.response,
           isUser: false,
-          timestamp: new Date(response.timestamp),
+          timestamp: new Date(),
         },
       ])
     },
-    onError: () => {
+    onError: (error: ApiError) => {
+      const errorMessage = getErrorMessage(error)
       toast({
-        title: 'שגיאה בשליחת ההודעה',
+        title: 'Error',
+        description: errorMessage,
         status: 'error',
-        duration: 2000,
+        duration: 5000,
+        isClosable: true,
       })
     },
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input.trim()) return
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: input,
-      isUser: true,
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMessage])
-    chatMutation.mutate(input)
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(),
+        text: input,
+        isUser: true,
+        timestamp: new Date(),
+      },
+    ])
+    mutation.mutate(input)
     setInput('')
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value)
   }
 
   return (
@@ -94,7 +111,7 @@ export const ChatWidget: React.FC = () => {
           <DrawerBody>
             <VStack spacing={4} align="stretch" h="100%">
               <Box flex={1} overflowY="auto" p={4}>
-                {messages.map((message) => (
+                {messages.map((message: Message) => (
                   <Box
                     key={message.id}
                     bg={message.isUser ? 'blue.50' : 'gray.50'}
@@ -113,13 +130,12 @@ export const ChatWidget: React.FC = () => {
                 ))}
               </Box>
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} style={{ width: '100%' }}>
                 <Box p={4} borderTop="1px" borderColor="gray.200">
                   <Input
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="הקלד הודעה..."
-                    disabled={chatMutation.isPending}
                   />
                 </Box>
               </form>
