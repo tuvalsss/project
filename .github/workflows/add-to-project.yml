@@ -23,8 +23,8 @@ jobs:
 
       - name: Add PR to ProjectV2
         env:
-          PAT_TOKEN: ${{ secrets.PROJECTS_TOKEN }}  # שימוש בטוקן הנכון
-          PROJECT_ID: "PVT_kwHOC7nMFM4A0XFk"  # ה-ID של ה-ProjectV2
+          PAT_TOKEN: "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"  # שימוש ישיר ב-PAT שלך
+          PROJECT_ID: "PVT_kwHOC7nMFM4A0XFk"  # ה-ID של ProjectV2 שלך
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
           gh api graphql -f query='
