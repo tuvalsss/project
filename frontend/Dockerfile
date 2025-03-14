@@ -1,19 +1,22 @@
 # Stage 0, "build-stage", based on Node.js, to build and compile the frontend
-FROM node:20 AS build-stage
+FROM node:16-alpine
 
 WORKDIR /app
 
-COPY package*.json /app/
-
+# Install dependencies
+COPY package*.json ./
 RUN npm install
 
-COPY ./ /app/
+# Copy application code
+COPY . .
 
-ARG VITE_API_URL=${VITE_API_URL}
-
+# Build the application
 RUN npm run build
 
+# Expose port
+EXPOSE 3000
 
+# Start the application
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM nginx:1
 

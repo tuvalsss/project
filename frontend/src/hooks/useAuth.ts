@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import {
   type Body_login_login_access_token as AccessToken,
@@ -16,15 +16,41 @@ const isLoggedIn = () => {
   return localStorage.getItem("access_token") !== null
 }
 
-const useAuth = () => {
+interface User {
+  id: string
+  email: string
+  full_name?: string
+  role: string
+}
+
+export const useAuth = () => {
+  const [user, setUser] = useState<UserPublic | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { data: user } = useQuery<UserPublic | null, Error>({
-    queryKey: ["currentUser"],
-    queryFn: UsersService.readUserMe,
-    enabled: isLoggedIn(),
-  })
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const token = localStorage.getItem('access_token')
+        if (!token) {
+          setUser(null)
+          return
+        }
+
+        const userData = await UsersService.readUserMe()
+        setUser(userData)
+      } catch (error) {
+        console.error('Error loading user:', error)
+        setUser(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadUser()
+  }, [])
 
   const signUpMutation = useMutation({
     mutationFn: (data: UserRegister) =>
@@ -68,10 +94,10 @@ const useAuth = () => {
     loginMutation,
     logout,
     user,
+    isLoading,
     error,
     resetError: () => setError(null),
   }
 }
 
 export { isLoggedIn }
-export default useAuth

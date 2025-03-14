@@ -1,6 +1,58 @@
+# IDE and Editor files
 .vscode
+.idea
+*.swp
+*.swo
+
+# Dependencies
 node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Test and Coverage
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build and Distribution
+dist/
+build/
+*.egg-info/
+
+# Environment Variables and Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+backend/.env
+frontend/.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Local Development
+*.sqlite3
+*.db

@@ -237,3 +237,139 @@ Check the file [release-notes.md](./release-notes.md).
 ## License
 
 The Full Stack FastAPI Template is licensed under the terms of the MIT license.
+
+# מערכת ניהול קמפיינים
+
+מערכת מתקדמת לניהול קמפיינים עם תמיכה בתשלומים, התראות בזמן אמת ואנליטיקס.
+
+## דרישות מערכת
+
+### צד שרת
+- Python 3.9+
+- PostgreSQL 13+
+- Redis 6+
+
+### צד לקוח
+- Node.js 16+
+- npm 7+
+
+## התקנה
+
+### התקנת צד שרת
+
+1. צור סביבה וירטואלית והפעל אותה:
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate  # Windows
+```
+
+2. התקן את התלויות:
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+3. הגדר את משתני הסביבה:
+```bash
+cp .env.example .env
+# ערוך את הקובץ .env עם הערכים המתאימים
+```
+
+4. הרץ את הגירות המסד נתונים:
+```bash
+alembic upgrade head
+```
+
+5. הפעל את השרת:
+```bash
+uvicorn app.main:app --reload
+```
+
+### התקנת צד לקוח
+
+1. התקן את התלויות:
+```bash
+cd frontend
+npm install
+```
+
+2. הגדר את משתני הסביבה:
+```bash
+cp .env.example .env
+# ערוך את הקובץ .env עם הערכים המתאימים
+```
+
+3. הפעל את השרת:
+```bash
+npm run dev
+```
+
+## תכונות עיקריות
+
+- 🔐 מערכת אימות מתקדמת עם תמיכה ב-OAuth
+- 💳 אינטגרציה עם Stripe לתשלומים
+- 📊 אנליטיקס ודוחות מפורטים
+- 🔔 התראות בזמן אמת עם WebSocket
+- 📱 ממשק משתמש רספונסיבי
+- 🔍 חיפוש וסינון מתקדם
+- 📈 ניטור ביצועים
+- 🔄 סנכרון נתונים בזמן אמת
+
+## ארכיטקטורה
+
+### צד שרת
+- FastAPI - מסגרת REST API
+- SQLAlchemy - ORM
+- Alembic - ניהול מיגרציות
+- Redis - קאש ותור משימות
+- WebSocket - התראות בזמן אמת
+
+### צד לקוח
+- React - ספריית UI
+- Chakra UI - ספריית עיצוב
+- React Query - ניהול מצב שרת
+- Zustand - ניהול מצב לקוח
+- React Router - ניתוב
+- Chart.js - גרפים וויזואליזציות
+
+## פיתוח
+
+### בדיקות
+```bash
+# צד שרת
+pytest
+
+# צד לקוח
+npm test
+```
+
+### לינטינג
+```bash
+# צד שרת
+flake8
+black .
+
+# צד לקוח
+npm run lint
+```
+
+### בנייה לייצור
+```bash
+# צד שרת
+python -m build
+
+# צד לקוח
+npm run build
+```
+
+## תיעוד API
+
+התיעוד זמין ב-Swagger UI בכתובת:
+```
+http://localhost:8000/docs
+```
+
+## רישוי
+
+MIT License

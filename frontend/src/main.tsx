@@ -8,6 +8,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router"
 import React, { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 import { routeTree } from "./routeTree.gen"
+import { ChakraProvider } from '@chakra-ui/react'
 
 import { ApiError, OpenAPI } from "./client"
 import { CustomProvider } from "./components/ui/provider"
@@ -41,10 +42,12 @@ declare module "@tanstack/react-router" {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <CustomProvider>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </CustomProvider>
+    <QueryClientProvider client={queryClient}>
+      <ChakraProvider>
+        <CustomProvider>
+          <RouterProvider router={router} />
+        </CustomProvider>
+      </ChakraProvider>
+    </QueryClientProvider>
   </StrictMode>,
 )

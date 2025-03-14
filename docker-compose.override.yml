@@ -85,6 +85,7 @@ services:
       SMTP_PORT: "1025"
       SMTP_TLS: "false"
       EMAILS_FROM_EMAIL: "noreply@example.com"
+      AWS_PROFILE: "2"
 
   mailcatcher:
     image: schickling/mailcatcher
