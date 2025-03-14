@@ -3,10 +3,11 @@ name: Cursor Auto PR
 on:
   push:
     branches:
-      - cursor-ai-branch  # הסניף שבו Cursor מבצע שינויים
+      - cursor-ai-branch  # רק בפוש לסניף הזה
 
 jobs:
   create_pr:
+    if: github.event_name == 'push'  # הוספת תנאי שרק בפוש זה ירוץ
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,7 +17,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           branch: cursor-ai-branch
-          base: main  # או כל סניף ראשי אחר שלך
+          base: main
           title: "Cursor AI - Auto Generated Changes"
           body: "This PR was created automatically by Cursor AI"
           labels: "auto-pr, needs-review"
