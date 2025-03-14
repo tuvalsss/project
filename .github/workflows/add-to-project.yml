@@ -36,14 +36,14 @@ jobs:
           PROJECT_ID: "PVT_kwHOC7nMFM4A0XqS"  # ✅ Project ID המעודכן
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
-          gh api graphql -f query='
+          gh api graphql --method POST -H "Authorization: Bearer $PAT_TOKEN" -f query='
           mutation($projectId: ID!, $prId: ID!) {
             addProjectV2ItemById(input: {projectId: $projectId, contentId: $prId}) {
               item {
                 id
               }
             }
-          }' -F projectId=$PROJECT_ID -F prId=$PR_ID -H "Authorization: Bearer $PAT_TOKEN"
+          }' -F projectId=$PROJECT_ID -F prId=$PR_ID
 
       - name: Debug - Print Project Info
-        run: echo "Using Project ID: $PROJECT_ID, Project URL: https://github.com/users/tuvalsss/projects/4"
+        run: echo "Using Project ID: $PROJECT_ID"
